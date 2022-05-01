@@ -3,8 +3,6 @@ const cors = require("cors");
 const { MongoClient } = require("mongodb");
 const app = express();
 
-const products = require("./Route/products.js");
-
 // Require =>
 require("dotenv").config();
 const PORT = process.env.PORT || 5000;
@@ -23,13 +21,19 @@ const run = async () => {
   try {
     await client.connect();
     console.log("DB Connected");
+
+    const productsCollection = client.db("hikingRoX").collection("products");
+
+    // Send Data DB to client with APi =====>
+    app.get("/products", async (req, res) => {
+      const users = await productsCollection.find({}).toArray();
+      res.send(users);
+    });
   } catch (error) {
     console.log(error);
   }
 };
 run();
-// Route===>
-// app.use("/posts", products);
 
 app.listen(PORT, () => {
   console.log("server is running port", PORT);
