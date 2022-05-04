@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const app = express();
 
 // Require =>
@@ -29,11 +29,25 @@ const run = async () => {
       const users = await productsCollection.find({}).toArray();
       res.send(users);
     });
+
+    // At first need to get specific user
+    app.get("/products/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const result = await productsCollection.findOne({ _id: ObjectId(id) });
+      res.send(result);
+    });
+
+    //
   } catch (error) {
     console.log(error);
   }
 };
 run();
+
+app.get("/", (req, res) => {
+  res.send("Runnig Server");
+});
 
 app.listen(PORT, () => {
   console.log("server is running port", PORT);
