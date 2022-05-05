@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middle-Ware
 app.use(cors());
+app.use(express.json());
 // DB Connection
 const URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hkk7c.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
@@ -31,19 +32,37 @@ const run = async () => {
     });
 
     // At first need to get specific user
-    app.get("/products/:id", async (req, res) => {
+    app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
-
       const result = await productsCollection.findOne({ _id: ObjectId(id) });
       res.send(result);
     });
 
-    //
-  } catch (error) {
-    console.log(error);
+    // update ---------------------
+    app.put("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const stock = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+
+      const updateDoc = {
+        $set: {
+          quantity: stock.newStock,
+        },
+      };
+      const result = await productsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+
+      res.send(result);
+    });
+  } finally {
   }
 };
-run();
+run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("Runnig Server");
