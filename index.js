@@ -25,13 +25,21 @@ const run = async () => {
 
     const productsCollection = client.db("hikingRoX").collection("products");
 
+    // Add New Product
+    //added new user ==========>
+    app.post("/products", async (req, res) => {
+      const newProduct = req.body;
+      const result = await productsCollection.insertOne(newProduct);
+      res.send({ result });
+    });
+
     // Send Data DB to client with APi =====>
     app.get("/products", async (req, res) => {
       const users = await productsCollection.find({}).toArray();
       res.send(users);
     });
 
-    // At first need to get specific user
+    // API need to get specific user
     app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
       const result = await productsCollection.findOne({ _id: ObjectId(id) });
