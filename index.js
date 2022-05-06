@@ -63,6 +63,7 @@ const run = async () => {
     app.put("/product/:id", async (req, res) => {
       const id = req.params.id;
       const stock = req.body;
+      console.log(stock.newSold);
 
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
@@ -70,6 +71,7 @@ const run = async () => {
       const updateDoc = {
         $set: {
           quantity: stock.newStock,
+          sold: stock.newSold,
         },
       };
       const result = await productsCollection.updateOne(
