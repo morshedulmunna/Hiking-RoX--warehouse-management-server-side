@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+var jwt = require("jsonwebtoken");
 const { MongoClient, ObjectId } = require("mongodb");
 const app = express();
 
@@ -24,14 +25,26 @@ const run = async () => {
     console.log("DB Connected");
 
     const productsCollection = client.db("hikingRoX").collection("products");
+    const emailCollection = client.db("hikingRoX").collection("emailList");
 
     // Add New Product
     //added new user ==========>
     app.post("/products", async (req, res) => {
       const newProduct = req.body;
+
       const result = await productsCollection.insertOne(newProduct);
       res.send({ result });
     });
+
+    // // Email Post Token JWt
+    // app.post("/login", async (req, res) => {
+    //   const email = req.body;
+    //   var token = jwt.sign(email, process.env.ACCESS_TOKEN);
+    //   console.log(token);
+
+    //   // const result = await emailCollection.insertOne(email);
+    //   res.send({ token });
+    // });
 
     // Send Data DB to client with APi =====>
     app.get("/products", async (req, res) => {
@@ -65,6 +78,15 @@ const run = async () => {
         options
       );
 
+      res.send(result);
+    });
+
+    // Delete a User
+    app.delete("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
