@@ -43,12 +43,8 @@ const run = async () => {
     // token base Product get ======>>
     app.get("/products/myitem", async (req, res) => {
       const tokenInfo = req.headers.authorization;
-      // console.log(tokenInfo);
       const [email, accessToken] = tokenInfo.split(" ");
-      console.log(email);
-
       const decoded = verifyToken(accessToken);
-      console.log(decoded.email);
 
       if (email === decoded.email) {
         const product = await productsCollection
@@ -64,7 +60,6 @@ const run = async () => {
     app.post("/login", async (req, res) => {
       const email = req.body;
       var token = jwt.sign(email, process.env.ACCESS_TOKEN);
-      console.log(email);
       res.send({ token });
     });
 
@@ -85,8 +80,6 @@ const run = async () => {
     app.put("/product/:id", async (req, res) => {
       const id = req.params.id;
       const stock = req.body;
-      console.log(stock.newSold);
-
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
 
@@ -108,7 +101,6 @@ const run = async () => {
     // Delete a User
     app.delete("/product/:id", async (req, res) => {
       const id = req.params.id;
-      // console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.deleteOne(query);
       res.send(result);
@@ -134,7 +126,6 @@ function verifyToken(token) {
       email = "Invalid email";
     }
     if (decoded) {
-      // console.log(decoded);
       email = decoded;
     }
   });
