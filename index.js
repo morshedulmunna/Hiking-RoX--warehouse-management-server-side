@@ -76,7 +76,7 @@ const run = async () => {
       res.send(result);
     });
 
-    // update ---------------------
+    // update Stock Price-->>>>>>
     app.put("/product/:id", async (req, res) => {
       const id = req.params.id;
       const stock = req.body;
@@ -98,7 +98,7 @@ const run = async () => {
       res.send(result);
     });
 
-    // Delete a User
+    // Delete a User ==========>>>
     app.delete("/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
