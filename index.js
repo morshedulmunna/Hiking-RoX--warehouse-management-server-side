@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-var jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ObjectId } = require("mongodb");
 const app = express();
 
@@ -25,26 +25,55 @@ const run = async () => {
     console.log("DB Connected");
 
     const productsCollection = client.db("hikingRoX").collection("products");
-    const emailCollection = client.db("hikingRoX").collection("emailList");
 
     // Add New Product
     //added new user ==========>
     app.post("/products", async (req, res) => {
       const newProduct = req.body;
+      const tokenInfo = req.headers.authorization;
+      // console.log(tokenInfo);
 
-      const result = await productsCollection.insertOne(newProduct);
-      res.send({ result });
+      const [email, accessToken] = tokenInfo.split(" ");
+      // console.log(email, accessToken)
+
+      const decoded = verifyToken(accessToken);
+      // console.log(decoded);
+
+      if (email === decoded.email) {
+        const result = await productsCollection.insertOne(newProduct);
+        res.send({ success: "Product Upload Successfully", result });
+      } else {
+        res.send({ success: "UnAuthoraized Access" });
+      }
     });
 
-    // // Email Post Token JWt
-    // app.post("/login", async (req, res) => {
-    //   const email = req.body;
-    //   var token = jwt.sign(email, process.env.ACCESS_TOKEN);
-    //   console.log(token);
+    // token base Product get
+    app.get("/products/myitem", async (req, res) => {
+      const tokenInfo = req.headers.authorization;
+      // console.log(tokenInfo);
+      const [email, accessToken] = tokenInfo.split(" ");
+      console.log(email);
 
-    //   // const result = await emailCollection.insertOne(email);
-    //   res.send({ token });
-    // });
+      const decoded = verifyToken(accessToken);
+      console.log(decoded.email);
+
+      if (email === decoded.email) {
+        const product = await productsCollection
+          .find({ email: email })
+          .toArray();
+        res.send(product);
+      } else {
+        res.send({ success: "UnAuthoraized Access" });
+      }
+    });
+
+    // Email Post Token JWt
+    app.post("/login", async (req, res) => {
+      const email = req.body;
+      var token = jwt.sign(email, process.env.ACCESS_TOKEN);
+      console.log(email);
+      res.send({ token });
+    });
 
     // Send Data DB to client with APi =====>
     app.get("/products", async (req, res) => {
@@ -103,3 +132,18 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log("server is running port", PORT);
 });
+
+// verify token function
+function verifyToken(token) {
+  let email;
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      email = "Invalid email";
+    }
+    if (decoded) {
+      // console.log(decoded);
+      email = decoded;
+    }
+  });
+  return email;
+}
