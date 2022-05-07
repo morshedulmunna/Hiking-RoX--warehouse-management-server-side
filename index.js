@@ -23,21 +23,14 @@ const run = async () => {
   try {
     await client.connect();
     console.log("DB Connected");
-
     const productsCollection = client.db("hikingRoX").collection("products");
 
-    // Add New Product
-    //added new user ==========>
+    //added new Product item with JWT Token Base ==========>
     app.post("/products", async (req, res) => {
       const newProduct = req.body;
       const tokenInfo = req.headers.authorization;
-      // console.log(tokenInfo);
-
       const [email, accessToken] = tokenInfo.split(" ");
-      // console.log(email, accessToken)
-
       const decoded = verifyToken(accessToken);
-      // console.log(decoded);
 
       if (email === decoded.email) {
         const result = await productsCollection.insertOne(newProduct);
@@ -47,7 +40,7 @@ const run = async () => {
       }
     });
 
-    // token base Product get
+    // token base Product get ======>>
     app.get("/products/myitem", async (req, res) => {
       const tokenInfo = req.headers.authorization;
       // console.log(tokenInfo);
@@ -67,7 +60,7 @@ const run = async () => {
       }
     });
 
-    // Email Post Token JWt
+    // Email Post Token JWt Create
     app.post("/login", async (req, res) => {
       const email = req.body;
       var token = jwt.sign(email, process.env.ACCESS_TOKEN);
@@ -75,7 +68,7 @@ const run = async () => {
       res.send({ token });
     });
 
-    // Send Data DB to client with APi =====>
+    // Send All Data DB to client with APi =====>
     app.get("/products", async (req, res) => {
       const users = await productsCollection.find({}).toArray();
       res.send(users);
