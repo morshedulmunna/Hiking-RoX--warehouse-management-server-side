@@ -27,6 +27,7 @@ const run = async () => {
     await client.connect();
     console.log("DB Connected");
     const productsCollection = client.db("hikingRoX").collection("products");
+    const blogCollection = client.db("hikingRoX").collection("blogs");
 
     //added new Product item with JWT Token Base ==========>
     app.post("/products", async (req, res) => {
@@ -107,6 +108,12 @@ const run = async () => {
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.deleteOne(query);
       res.send(result);
+    });
+
+    // Blog Post get ======>>
+    app.get("/blogs", async (req, res) => {
+      const blog = await blogCollection.find({}).toArray();
+      res.send(blog);
     });
   } finally {
   }
